@@ -21,7 +21,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class MainActivity extends AppCompatActivity {
 
-    String websiteURL = "https://amazon.com/"; // sets web url
+    String websiteURL = "https://ecommerce-abhinabade01.vercel.app/"; // sets web url
     private WebView webview;
     SwipeRefreshLayout mySwipeRefreshLayout;
 
