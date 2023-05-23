@@ -26,41 +26,10 @@ public class MainActivity extends AppCompatActivity {
     SwipeRefreshLayout mySwipeRefreshLayout;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) { //start point
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if( ! CheckNetwork.isInternetAvailable(this)) //returns true if internet available
-        {
-            //if there is no internet do this
-            setContentView(R.layout.activity_main);
-            //Toast.makeText(this,"No Internet Connection, Chris",Toast.LENGTH_LONG).show();
-
-            new AlertDialog.Builder(this) //alert the person knowing they are about to close
-                    .setTitle("No internet connection available")
-                    .setMessage("Please Check you're Mobile data or Wifi network.")
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-                    })
-                    //.setNegativeButton("No", null)
-                    .show();
-
-        }
-        else
-        {
-
-            //Webview stuff
-            webview = findViewById(R.id.webView);
-            webview.getSettings().setJavaScriptEnabled(true);
-            webview.getSettings().setDomStorageEnabled(true);
-            webview.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
-            webview.loadUrl(websiteURL);
-            webview.setWebViewClient(new WebViewClientDemo());
-
-        }
 
         //Swipe to refresh functionality
         mySwipeRefreshLayout = (SwipeRefreshLayout)this.findViewById(R.id.swipeContainer);
@@ -75,6 +44,49 @@ public class MainActivity extends AppCompatActivity {
 
         );
 
+        checkInternetConnection();
+    }
+
+    private void load() { //loads the webview
+        //Webview stuff
+        webview = findViewById(R.id.webView);
+        webview.getSettings().setJavaScriptEnabled(true);
+        webview.getSettings().setDomStorageEnabled(true);
+        webview.setOverScrollMode(WebView.OVER_SCROLL_NEVER);
+        webview.loadUrl(websiteURL);
+        webview.setWebViewClient(new WebViewClientDemo());
+    }
+
+    private void checkInternetConnection(){
+        // checks for internet connection
+        // if present calls load()
+        // If not gives an error dialouge
+
+        if(CheckNetwork.isInternetAvailable(this))
+            load();
+
+        else{
+            //if there is no internet do this
+            setContentView(R.layout.activity_main);
+
+            new AlertDialog.Builder(this) //alert the person knowing internet not available
+                    .setTitle("No internet connection available")
+                    .setMessage("Please Check you're Mobile data or Wifi network.")
+                    .setPositiveButton("close", new DialogInterface.OnClickListener() { //closes the app
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setNegativeButton("Retry", new DialogInterface.OnClickListener() { //calls checkInternetConnection()
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                           checkInternetConnection();
+
+                        }
+                    })
+                    .show();
+        }
     }
 
     private class WebViewClientDemo extends WebViewClient {
@@ -106,25 +118,29 @@ public class MainActivity extends AppCompatActivity {
                     .setMessage("Are you sure. You want to close this app?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
+                        //closes the app
                         public void onClick(DialogInterface dialog, int which) {
                             finish();
                         }
                     })
-                    .setNegativeButton("No", null)
+                    .setNegativeButton("No", null) //removes AlertDialog
                     .show();
         }
 
     }
 
 }
-
+/**
+ * Utility class to check the availability of internet connection.
+ */
 class CheckNetwork {
-
+    // Tag for logging purposes
     private static final String TAG = CheckNetwork.class.getSimpleName();
 
     public static boolean isInternetAvailable(Context context)
 
     {
+        // retrieve the currently active network information
         NetworkInfo info = (NetworkInfo) ((ConnectivityManager)
 
                 context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
